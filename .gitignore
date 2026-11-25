@@ -1,0 +1,23 @@
+# Archivos de Gradle y compilación
+.gradle/
+build/
+**/build/
+.kotlin/
+.externalNativeBuild/
+.cxx/
+
+# Configuraciones locales y personales del IDE
+local.properties
+*.iml
+.idea/
+/captures
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos temporales, respaldos y logs de error de Java
+*.log
+*.zip
+*.apk
+*.aab
