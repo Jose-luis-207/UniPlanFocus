@@ -100,4 +100,7 @@
     <string name="version_aplicacion">Versión 1.0</string>
     <string name="ver_ajustes">Ver ajustes</string>
 
+    <string name="error_sin_actividades">Primero registra una actividad.</string>
+
+    <string name="error_categoria_relacionada">No puedes eliminar esta categoría porque tiene actividades registradas.</string>
 </resources>

@@ -11,12 +11,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import mx.uttt.uniplanfocus.domain.model.Recordatorio
 import mx.uttt.uniplanfocus.ui.viewmodel.ActividadViewModel
 import mx.uttt.uniplanfocus.ui.viewmodel.RecordatorioViewModel
+import mx.uttt.uniplanfocus.ui.theme.UniPlanFocusTheme
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -30,8 +33,8 @@ fun RecordatoriosScreen(
 
     val contexto = LocalContext.current
 
-    val recordatorios by recordatorioViewModel.recordatorios.collectAsState()
-    val actividades by actividadViewModel.actividades.collectAsState()
+    val recordatorios by recordatorioViewModel.recordatorios.collectAsStateWithLifecycle()
+    val actividades by actividadViewModel.actividades.collectAsStateWithLifecycle()
 
     var actividadId by remember { mutableIntStateOf(0) }
     var mensaje by remember { mutableStateOf("") }
@@ -40,9 +43,11 @@ fun RecordatoriosScreen(
     }
 
     var menuActividades by remember { mutableStateOf(false) }
+
     var recordatorioEditando by remember {
         mutableStateOf<Recordatorio?>(null)
     }
+
     var mensajeError by remember { mutableStateOf("") }
 
     val actividadSeleccionada = actividades.find {
@@ -67,7 +72,9 @@ fun RecordatoriosScreen(
         ) {
 
             TextButton(
-                onClick = { navController.popBackStack() }
+                onClick = {
+                    navController.popBackStack()
+                }
             ) {
                 Text(stringResource(R.string.regresar))
             }
@@ -89,9 +96,10 @@ fun RecordatoriosScreen(
             )
 
             Box {
-
                 OutlinedButton(
-                    onClick = { menuActividades = true },
+                    onClick = {
+                        menuActividades = true
+                    },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
@@ -104,12 +112,15 @@ fun RecordatoriosScreen(
 
                 DropdownMenu(
                     expanded = menuActividades,
-                    onDismissRequest = { menuActividades = false }
+                    onDismissRequest = {
+                        menuActividades = false
+                    }
                 ) {
                     actividades.forEach { actividad ->
-
                         DropdownMenuItem(
-                            text = { Text(actividad.nombre) },
+                            text = {
+                                Text(actividad.nombre)
+                            },
                             onClick = {
                                 actividadId = actividad.id
                                 menuActividades = false
@@ -123,7 +134,9 @@ fun RecordatoriosScreen(
 
             OutlinedTextField(
                 value = mensaje,
-                onValueChange = { mensaje = it },
+                onValueChange = {
+                    mensaje = it
+                },
                 label = {
                     Text(stringResource(R.string.mensaje_recordatorio))
                 },
@@ -132,16 +145,15 @@ fun RecordatoriosScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            // SELECCIONAR FECHA
             OutlinedButton(
                 onClick = {
-
                     val calendario = Calendar.getInstance()
                     calendario.timeInMillis = fechaHora
 
                     DatePickerDialog(
                         contexto,
                         { _, anio, mes, dia ->
-
                             calendario.set(
                                 anio,
                                 mes,
@@ -165,16 +177,15 @@ fun RecordatoriosScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // SELECCIONAR HORA
             OutlinedButton(
                 onClick = {
-
                     val calendario = Calendar.getInstance()
                     calendario.timeInMillis = fechaHora
 
                     TimePickerDialog(
                         contexto,
                         { _, hora, minuto ->
-
                             calendario.set(
                                 Calendar.HOUR_OF_DAY,
                                 hora
@@ -206,6 +217,7 @@ fun RecordatoriosScreen(
                 )
             }
 
+            // GUARDAR O ACTUALIZAR
             Button(
                 onClick = {
 
@@ -255,6 +267,7 @@ fun RecordatoriosScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            // LISTA DE RECORDATORIOS
             Text(
                 text = stringResource(R.string.lista_recordatorios),
                 style = MaterialTheme.typography.titleLarge
@@ -277,7 +290,6 @@ fun RecordatoriosScreen(
                         .fillMaxWidth()
                         .padding(vertical = 6.dp)
                 ) {
-
                     Column(
                         modifier = Modifier.padding(16.dp)
                     ) {
@@ -307,9 +319,9 @@ fun RecordatoriosScreen(
 
                         Row {
 
+                            // EDITAR
                             TextButton(
                                 onClick = {
-
                                     recordatorioEditando = recordatorio
                                     actividadId = recordatorio.actividadId
                                     mensaje = recordatorio.mensaje
@@ -320,9 +332,9 @@ fun RecordatoriosScreen(
                                 Text(stringResource(R.string.editar))
                             }
 
+                            // ELIMINAR
                             TextButton(
                                 onClick = {
-
                                     recordatorioViewModel.eliminarRecordatorio(
                                         recordatorio
                                     )
@@ -331,9 +343,9 @@ fun RecordatoriosScreen(
                                 Text(stringResource(R.string.eliminar))
                             }
 
+                            // ACTIVAR O DESACTIVAR
                             TextButton(
                                 onClick = {
-
                                     recordatorioViewModel.actualizarRecordatorio(
                                         recordatorio.copy(
                                             activo = !recordatorio.activo
@@ -350,6 +362,128 @@ fun RecordatoriosScreen(
                                         }
                                     )
                                 )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// VISTA PREVIA
+@Preview(showBackground = true)
+@Composable
+fun RecordatoriosScreenPreview() {
+    UniPlanFocusTheme {
+        Scaffold(
+            containerColor = MaterialTheme.colorScheme.background
+        ) { espacio ->
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(espacio)
+                    .verticalScroll(rememberScrollState())
+                    .padding(20.dp)
+            ) {
+
+                Text(stringResource(R.string.regresar))
+
+                Text(
+                    text = stringResource(R.string.titulo_recordatorios),
+                    style = MaterialTheme.typography.headlineMedium
+                )
+
+                Text(
+                    text = stringResource(R.string.descripcion_recordatorios),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Text(
+                    stringResource(R.string.seleccionar_actividad_recordatorio)
+                )
+
+                OutlinedButton(
+                    onClick = {},
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        stringResource(R.string.seleccionar_actividad_recordatorio)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                OutlinedTextField(
+                    value = "",
+                    onValueChange = {},
+                    label = {
+                        Text(stringResource(R.string.mensaje_recordatorio))
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                OutlinedButton(
+                    onClick = {},
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(R.string.fecha_recordatorio))
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedButton(
+                    onClick = {},
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(R.string.hora_recordatorio))
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Button(
+                    onClick = {},
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(R.string.guardar_recordatorio))
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Text(
+                    text = stringResource(R.string.lista_recordatorios),
+                    style = MaterialTheme.typography.titleLarge
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Card(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Text(stringResource(R.string.nombre_actividad))
+                        Text(stringResource(R.string.mensaje_recordatorio))
+                        Text("24/11/2026 08:00")
+                        Text(stringResource(R.string.recordatorio_activo))
+
+                        Row {
+                            TextButton(onClick = {}) {
+                                Text(stringResource(R.string.editar))
+                            }
+
+                            TextButton(onClick = {}) {
+                                Text(stringResource(R.string.eliminar))
+                            }
+
+                            TextButton(onClick = {}) {
+                                Text(stringResource(R.string.recordatorio_inactivo))
                             }
                         }
                     }

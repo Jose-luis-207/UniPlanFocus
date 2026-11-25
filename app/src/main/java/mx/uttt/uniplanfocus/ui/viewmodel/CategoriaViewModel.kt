@@ -1,3 +1,4 @@
+
 package mx.uttt.uniplanfocus.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
@@ -7,6 +8,8 @@ import mx.uttt.uniplanfocus.domain.model.Categoria
 import mx.uttt.uniplanfocus.domain.repository.CategoriaRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -22,6 +25,9 @@ class CategoriaViewModel @Inject constructor(
             initialValue = emptyList()
         )
 
+    private val _errorEliminar = MutableStateFlow(false)
+    val errorEliminar = _errorEliminar.asStateFlow()
+
     fun insertarCategoria(categoria: Categoria) {
         viewModelScope.launch {
             repository.insertarCategoria(categoria)
@@ -36,8 +42,16 @@ class CategoriaViewModel @Inject constructor(
 
     fun eliminarCategoria(categoria: Categoria) {
         viewModelScope.launch {
-            repository.eliminarCategoria(categoria)
+            try {
+                repository.eliminarCategoria(categoria)
+                _errorEliminar.value = false
+            } catch (e: Exception) {
+                _errorEliminar.value = true
+            }
         }
     }
+
+    fun limpiarErrorEliminar() {
+        _errorEliminar.value = false
+    }
 }
-//Solicitan operaciones a los repositorios y exponen los datos para la interfaz.
